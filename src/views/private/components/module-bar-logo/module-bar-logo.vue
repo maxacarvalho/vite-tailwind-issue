@@ -1,0 +1,141 @@
+<template>
+  <component
+    :is="url ? 'a' : 'div'"
+    ref="noopener noreferer"
+    v-tooltip.right="urlTooltip"
+    :href="url"
+    target="_blank"
+    class="module-bar-logo"
+    :class="{ loading: showLoader }"
+  >
+    <template v-if="customLogoPath">
+      <transition name="fade">
+        <v-progress-linear v-if="showLoader" indeterminate rounded @animationiteration="stopSpinnerIfQueueIsEmpty" />
+      </transition>
+      <img class="custom-logo" :src="customLogoPath" alt="Project Logo" />
+    </template>
+    <div v-else class="logo" :class="{ running: showLoader }" @animationiteration="stopSpinnerIfQueueIsEmpty" />
+  </component>
+</template>
+
+<script>
+import { useI18n } from 'vue-i18n';
+import { defineComponent, ref, computed, watch, toRefs } from 'vue';
+// import { useSettingsStore, useRequestsStore } from '@/stores';
+// import { getRootPath } from '@/utils/get-root-path';
+// import { addTokenToURL } from '@/api';
+
+export default defineComponent({
+  setup() {
+    const { t } = useI18n();
+
+    // const requestsStore = useRequestsStore();
+    // const settingsStore = useSettingsStore();
+
+    const customLogoPath = computed(() => {
+      // if (settingsStore.settings === null) return null;
+      // if (!settingsStore.settings?.project_logo) return null;
+      // return addTokenToURL(getRootPath() + `assets/${settingsStore.settings.project_logo}`);
+      return null;
+    });
+
+    const showLoader = ref(false);
+
+    // const { queueHasItems } = toRefs(requestsStore);
+
+    /*watch(
+      () => queueHasItems.value,
+      (hasItems) => {
+        if (hasItems) showLoader.value = true;
+      }
+    );*/
+
+    // const url = computed(() => settingsStore.settings?.project_url);
+    const url = computed(() => null);
+
+    const urlTooltip = computed(() => {
+      // return settingsStore.settings?.project_url ? t('view_project') : false;
+      return false;
+    });
+
+    return {
+      customLogoPath,
+      showLoader,
+      stopSpinnerIfQueueIsEmpty,
+      url,
+      urlTooltip,
+    };
+
+    function stopSpinnerIfQueueIsEmpty() {
+      // if (queueHasItems.value === false) showLoader.value = false;
+    }
+  },
+});
+</script>
+
+<style lang="scss" scoped>
+.module-bar-logo {
+  --v-progress-linear-height: 2px;
+  --v-progress-linear-color: var(--white);
+  --v-progress-linear-background-color: rgba(255, 255, 255, 0.5);
+
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  padding: 12px;
+  background-color: var(--brand);
+
+  .v-progress-linear {
+    position: absolute;
+    right: 12px;
+    bottom: 5px;
+    left: 12px;
+    width: 40px;
+  }
+
+  .custom-logo {
+    display: block;
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+  }
+
+	.logo {
+		position: absolute;
+		top: 10px;
+		left: 5px;
+		width: 52px;
+		height: 45px;
+		margin: 0 auto;
+		background-image: url('./nick-logo.svg');
+		background-position: 0 0;
+		background-size: 170px 45px;
+	}
+
+  .running {
+    animation: 560ms run steps(14) infinite;
+  }
+}
+
+.fade-enter-active {
+  transition: opacity var(--slow) var(--transition);
+}
+
+.fade-leave-active {
+  transition: opacity var(--medium) var(--transition);
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+@keyframes run {
+  100% {
+    background-position: 100%;
+  }
+}
+</style>

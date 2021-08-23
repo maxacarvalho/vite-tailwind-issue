@@ -1,0 +1,48 @@
+<template>
+	<v-list-item
+		v-if="field.children === undefined || depth === 0"
+		:disabled="field.disabled"
+		clickable
+		@click="$emit('add', `${parent ? parent + '.' : ''}${field.field}`)"
+	>
+		<v-list-item-content>{{ field.name || formatTitle(field.field) }}</v-list-item-content>
+	</v-list-item>
+	<v-list-group v-else>
+		<template #activator>{{ field.name || formatTitle(field.field) }}</template>
+		<field-list-item
+			v-for="childField in field.children"
+			:key="childField.key"
+			:parent="`${parent ? parent + '.' : ''}${field.field}`"
+			:field="childField"
+			:depth="depth - 1"
+			@add="$emit('add', $event)"
+		/>
+	</v-list-group>
+</template>
+
+<script>
+import { defineComponent } from 'vue';
+import formatTitle from '@/utils/format-title';
+
+export default defineComponent({
+	name: 'FieldListItem',
+	props: {
+		field: {
+			type: Object,
+			required: true,
+		},
+		parent: {
+			type: String,
+			default: null,
+		},
+		depth: {
+			type: Number,
+			default: 2,
+		},
+	},
+	emits: ['add'],
+	setup() {
+		return { formatTitle };
+	},
+});
+</script>
